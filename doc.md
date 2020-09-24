@@ -63,3 +63,32 @@ AppData\Roaming\npm\vue.ps 因为在此系统禁止运行脚本
 ```
 npm run serve
 ```
+
+## 运行项目出错
+```
+Module build failed (from ./node_modules/eslint-loader/index.js)
+----------------------------------------------------------------
+解决办法1：
+npm init -y
+npm install eslint --save-dev
+
+cd ./node_modules/.bin/
+eslint --init
+
+把./node_modules/.bin/文件夹下面生成的.eslintrc.js文件，拷贝到项目根目录。
+----------------------------------------------------------------
+解决办法2：
+npm i -g eslint
+npm i -g eslint-config-airbnb
+npm i -g eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react
+
+在项目的根目录下新建一个.eslintrc文件，配置 ESLint。
+{
+  "extends": "eslint-config-airbnb"
+}
+```
+
+## element-ui
+```
+https://element.eleme.cn/#/zh-CN
+```
