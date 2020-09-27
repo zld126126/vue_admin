@@ -2,23 +2,27 @@
     <div id="login">
         <div class="login-wrap">
             <ul class="menu-tab">
-                <li v-for="item in menuTabs" v-bind:key="item.id" v-bind:class="{'current':item.current}" @click="toggleMenu(item)">{{ item.txt}}</li>
+                <li v-for="item in menuTabs" v-bind:key="item.id" v-bind:class="{'current':item.current}" @click="toggleMenu(item)">{{ item.txt }}</li>
             </ul>
             <!--表单start-->
             <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form" size="medium">
-                <el-form-item prop="pass" class="item-form">
-                  <label class="left-label">邮箱</label>
-                  <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                <el-form-item prop="username" class="item-form">
+                  <label>用户名</label>
+                  <el-input v-model="ruleForm.username" autocomplete="off"></el-input>
                 </el-form-item>
 
-                <el-form-item prop="checkPass" class="item-form">
-                  <label class="left-label">密码</label>
-                  <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                <el-form-item prop="password" class="item-form">
+                  <label>密码</label>
+                  <el-input type="password" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="24"></el-input>
                 </el-form-item>
 
-                <el-form-item prop="age" class="item-form">
-                  <label class="left-label">验证码</label>
-                  <el-input v-model.number="ruleForm.age"></el-input>
+                <el-form-item prop="code" class="item-form">
+                  <label>验证码</label>
+                  <el-row :gutter="10">
+                    <el-col :span="15"><el-input v-model.number="ruleForm.code" minlength="6" maxlength="6"></el-input></el-col>
+                    <el-col :span="9"><el-button type="success">获取验证码</el-button></el-col>
+                  </el-row>
+                  
                 </el-form-item>
 
                 <el-form-item class="item-form">
@@ -33,62 +37,60 @@
 export default {
     name: 'login',
     data(){
-        var checkAge = (rule, value, callback) => {
-        if (!value) {
-          return callback(new Error('年龄不能为空'));
-        }
-        setTimeout(() => {
-          if (!Number.isInteger(value)) {
-            callback(new Error('请输入数字值'));
-          } else {
-            if (value < 18) {
-              callback(new Error('必须年满18岁'));
-            } else {
-              callback();
-            }
-          }
-        }, 1000);
-      };
-      var validatePass = (rule, value, callback) => {
+      // 验证码校验
+      var validateCode = (rule, value, callback) => {
+        let reg = /^[a-z0-9]{6}$/
         if (value === '') {
-          callback(new Error('请输入密码'));
-        } else {
-          if (this.ruleForm.checkPass !== '') {
-            this.$refs.ruleForm.validateField('checkPass');
-          }
+          callback(new Error('请输入验证码'));
+        }else if (!reg.test(value)){
+          callback(new Error('验证码格式有误'));
+        }else {
           callback();
         }
       };
-      var validatePass2 = (rule, value, callback) => {
+      // 用户名校验
+      var validateUsername = (rule, value, callback) => {
+        let reg = /^([a-zA-Z]|[0-9])(\w)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
         if (value === '') {
-          callback(new Error('请再次输入密码'));
-        } else if (value !== this.ruleForm.pass) {
-          callback(new Error('两次输入密码不一致!'));
+          callback(new Error('请输入用户名'));
+        }else if (!reg.test(value)){
+          callback(new Error('用户名格式有误'));
+        }else {
+          callback();
+        }
+      };
+      // 密码校验
+      var validatePassword = (rule, value, callback) => {
+        let reg = /^(?!\D+$)(?![^a-zA-Z]+$)\S{6,20}$/
+        if (value === '') {
+          callback(new Error('请输入密码'));
+        }else if (!reg.test(value)){
+          callback(new Error('密码格式有误'));
         } else {
           callback();
         }
       };
         return {
-            menuTabs:[
-              {txt:'登录',current:true},
-              {txt:'注册',current:false}
+          menuTabs:[
+            {txt:'登录',current:true},
+            {txt:'注册',current:false}
+          ],
+          ruleForm: {
+            username: '',
+            checkPass: '',
+            age: ''
+          },
+          rules: {
+            username: [
+                { validator: validateUsername, trigger: 'blur' }
             ],
-            ruleForm: {
-              pass: '',
-              checkPass: '',
-              age: ''
-            },
-            rules: {
-              pass: [
-                  { validator: validatePass, trigger: 'blur' }
-              ],
-              checkPass: [
-                  { validator: validatePass2, trigger: 'blur' }
-              ],
-              age: [
-                  { validator: checkAge, trigger: 'blur' }
-              ]
-            }  
+            password: [
+                { validator: validatePassword, trigger: 'blur' }
+            ],
+            code: [
+                { validator: validateCode, trigger: 'blur' }
+            ]
+          }  
         };
     },
     created(){},
@@ -147,6 +149,7 @@ export default {
     font-size: 14px;
     color: white;
     margin-bottom: 3px;
+    text-align: left;
   }
   .item-form {
     margin-bottom: 13px;
@@ -159,9 +162,4 @@ export default {
     margin-top: 19px;
   }
 }
-
-.left-label {
-  float: left;
-}
-
 </style>
